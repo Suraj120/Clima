@@ -2,14 +2,15 @@
 //  ViewController.swift
 //  WeatherApp
 //
-//  Created by Angela Yu on 23/08/2015.
-//  Copyright (c) 2015 London App Brewery. All rights reserved.
+// Created by Suraj  on 14/06/2019
+//  Copyright (c) 2019 London App . All rights reserved.
 //
 
 import UIKit
+import CoreLocation
 
 
-class WeatherViewController: UIViewController {
+class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     
     //Constants
     let WEATHER_URL = "http://api.openweathermap.org/data/2.5/weather"
@@ -17,7 +18,7 @@ class WeatherViewController: UIViewController {
     //69af4bcd9094fff5597c9d0b3a214c72
 
     //TODO: Declare instance variables here
-    
+    let locationManager = CLLocationManager()
 
     
     //Pre-linked IBOutlets
@@ -31,9 +32,10 @@ class WeatherViewController: UIViewController {
         
         
         //TODO:Set up the location manager here.
-    
-        
-        
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        locationManager.requestWhenInUseAuthorization() //Shows the authorization popup
+        locationManager.startUpdatingLocation()
     }
     
     
@@ -75,11 +77,22 @@ class WeatherViewController: UIViewController {
     
     
     //Write the didUpdateLocations method here:
-    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let location = locations[locations.count-1]
+        if location.horizontalAccuracy > 0 {
+            locationManager.stopUpdatingLocation()
+        }
+        let latitude = String(location.coordinate.latitude)
+        let longitude = String(location.coordinate.longitude)
+        let params:[String:String] = ["lat":latitude, "lon":longitude, "appid": APP_ID]
+    }
     
     
     //Write the didFailWithError method here:
-    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(error)
+        cityLabel.text = "Location Unavailable"
+    }
     
     
 
